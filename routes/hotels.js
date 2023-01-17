@@ -1,23 +1,15 @@
 import express from "express";
-
 const router = express.Router();
 
 
+import { create_hotel } from "../controllers/hotels.js";
 
-router.get("/", async(req, res) => {
-    res.send("hello rooms!!")
-})
 
-router.get("/", async(req, res) => {
-    res.send("hello world!!")
-})
 
-router.put("/", async(req, res) => {
-    res.send("hello world!!")
-})
+router.get('/', create_hotel);
 
-router.delete("/", async(req, res) => {
-    res.send("hello world!!")
-})
+
+
+
 
 export default router;
