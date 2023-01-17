@@ -1,6 +1,7 @@
 import express from "express"
 import connection from "./db/database.js"
 import dotenv from "dotenv"
+import bodyParser from "body-parser"
 
 
 // routes import
@@ -17,6 +18,9 @@ const app = express()
 connection()
 dotenv.config();
    
+// body parser
+app.use(express.json());
+app.use(bodyParser.json())
 
 // routes middleware
 app.use('/api/auth', authRouter);

@@ -1,15 +1,10 @@
 import express from "express";
+import { create_hotel, update_hotel } from "../controllers/hotels.js";
 const router = express.Router();
 
 
-import { create_hotel } from "../controllers/hotels.js";
-
-
-
-router.get('/', create_hotel);
-
-
-
+router.post('/', create_hotel);
+router.put('/:id', update_hotel);
 
 
 export default router;
