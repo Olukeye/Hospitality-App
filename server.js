@@ -2,7 +2,7 @@ import express from "express"
 import connection from "./db/database.js"
 import dotenv from "dotenv"
 import bodyParser from "body-parser"
-
+import cookieParser from "cookie-parser"
 
 // routes import
 import authRouter from "./routes/auth.js"
@@ -21,13 +21,14 @@ dotenv.config();
 // body parser
 app.use(express.json());
 app.use(bodyParser.json())
+app.use(cookieParser())
 
 // routes middleware
 app.use('/api/auth', authRouter);
 app.use('/api/rooms', guest_roomRouter);
 app.use('/api/hotels', hotelRouter);
 app.use('/api/restaurant', restaurantRouter);
-app.use('/api', userRouter);
+app.use('/api/users', userRouter);
 
 
 // Config DB
