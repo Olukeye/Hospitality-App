@@ -17,13 +17,11 @@ const sign_up = async (req, res) => {
     }
 }
 
-
 // Login user
 const login = async (req, res) => {
     try{
         const user = await User.findOne({email: req.body.email});
 
-        // if is not a user 
         !user && res.status(400).json("Wrong email or password!");
 
         const bytes = CryptoJS.AES.decrypt(user.password, process.env.JWT_SECRET);

@@ -1,26 +1,17 @@
 import express from "express";
-
+import { update_user, delete_user, get_all_users, get_single_user } from "../controllers/users.js";
 const router = express.Router();
+import { verify } from "../utils/verification.js";
 
 
 
-router.get("/", async(req, res) => {
-    res.send("hello world!!")
-})
+router.put('/update/:id', verify,  update_user)
 
+router.delete('/delete/:id', delete_user)
 
-router.get("/", async(req, res) => {
-    res.send("hello world!!")
-})
+router.get('/', get_all_users)
 
+router.get('/:id', get_single_user)
 
-router.put("/", async(req, res) => {
-    res.send("hello world!!")
-})
-
-
-router.delete("/", async(req, res) => {
-    res.send("hello world!!")
-})
 
 export default router;
