@@ -2,12 +2,12 @@ import User  from "../models/users.js"
 import CryptoJS from "crypto-js"
 
 
-const get_single_user = async (req, res) => {
+const get_single_user = async (req, res,  next) => {
     try {
         const singleuser = await User.findById(req.params.id)
         res.status(200).json(singleuser)
-    } catch (e) {
-        res.status(500).json(e)
+    } catch (err) {
+        return next(err);
     }
 }
 
@@ -15,12 +15,12 @@ const get_all_users = async (req, res) => {
     try {
         const allusers = await User.find()
         res.status(200).json(allusers.reverse())
-    } catch (e) {
-        res.status(500).json(e)
+    } catch (error) {
+        res.status(500).json(err)
     }
 }
 
-const update_user = async (req, res) => {
+const update_user = async (req, res, next) => {
 
     if ( req.user.isAdmin) {
         if (req.body.password) {
@@ -29,9 +29,12 @@ const update_user = async (req, res) => {
         try {
             const updateduser = await User.findByIdAndUpdate(req.params.id,
                 { $set: req.body }, { new: true });
-            res.status(200).json(updateduser);
+                return res.status(201).json({
+                    message: "update successful",
+                    user: updateduser,
+                });
         }catch (err) {
-            res.status(500).json(err)
+            return next(err);
         }
     } else {
         res.status(403).json( "You are not authorized!")
@@ -44,8 +47,8 @@ const delete_user = async (req, res) => {
         try {
             await User.findByIdAndDelete(req.params.id)
             res.status(200).json("Deleted successfully!");
-        }catch (e) {
-            res.status(500).json(e)
+        }catch (err) {
+            res.status(500).json(err)
         } 
     } 
 }
