@@ -1,15 +1,20 @@
 import express from "express";
 const router = express.Router();
+import { verify } from "../utils/verification.js";
+import { create_guest_room, update_guest_room, get_single_guest_room, get_all_GuestRooms, delete_guest_room} from "../controllers/guest_rooms.js";
 
 
-import { create_guest_room } from "../controllers/guest_rooms.js";
 
-router.post('/', create_guest_room );
 
-// router.put('/:id', update_hotel);
-// router.delete('/:id', delete_hotel);
-// router.get('/:id', get_single_hotel);
-// router.get('/', get_all_hotels)
+router.post('/', verify, create_guest_room );
+
+router.put('/:id', verify, update_guest_room);
+
+router.delete('/:id', delete_guest_room);
+
+router.get('/:id', verify, get_single_guest_room);
+
+router.get('/',  get_all_GuestRooms)
 
 
 export default router;

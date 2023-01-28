@@ -14,7 +14,7 @@ const Guest_roomSchema = new mongoose.Schema({
         }
     ],
     price: { type: Number, required: true },
-    maxGuestPerRoom: { type: [String] },
+    maxGuestPerRoom: { type: Number, required: true },
     description: {type:String, required:true}
 }, {timestamps: true} )
 

@@ -10,9 +10,9 @@ router.put("/update/:id", verify, update_user);
 
 router.delete('/delete/:id', verify, delete_user)
 
-router.get('/:id',  get_single_user)
+router.get('/:id', verify, get_single_user)
 
-router.get('/', verify,  get_all_users)
+router.get('/', get_all_users)
 
 
 
