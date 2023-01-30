@@ -3,8 +3,8 @@ import * as mongoose from 'mongoose';
 
 
 const Guest_roomSchema = new mongoose.Schema({
-    hotelId:{ type: mongoose.Types.ObjectId, ref: 'Hotel', required:true},
-    title: {type:String, require:true},
+    // hotelId:{ type: mongoose.Types.ObjectId, ref: 'Hotel', required:true},
+    title: {type:String, required:true},
     roomNumber: [
         {
             number: Number,

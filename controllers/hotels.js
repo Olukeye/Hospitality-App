@@ -3,7 +3,7 @@ import Hotel  from "../models/hotels.js"
 
 
 const create_hotel = async (req, res) => {
-    const hotel = await new Hotel(req.body)
+    const hotel =  new Hotel(req.body)
     try {
         const savedHotel = await hotel.save()
         res.status(200).json(savedHotel)
