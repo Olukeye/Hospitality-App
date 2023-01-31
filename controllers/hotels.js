@@ -51,10 +51,27 @@ const get_all_hotels = async (req, res) => {
     }
 }
 
+
+const get_hotel_location = async (req, res, next) => {
+    const cities = req.query.cities
+    let location;
+    try {
+        location = await Hotel.aggregate([
+                { $match: { city: city } },
+                { $sample: { size: 1 } },
+            ]);
+            res.status(200).json(location.count())
+    } catch (err) {
+        res.status(500).json(err)
+    }
+}
+
+
 export {
     create_hotel,
     update_hotel,
     delete_hotel,
     get_single_hotel,
-    get_all_hotels
+    get_all_hotels,
+    get_hotel_location
 }

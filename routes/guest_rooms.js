@@ -6,7 +6,7 @@ import { create_guest_room, update_guest_room, get_single_guest_room, get_all_Gu
 
 
 
-router.post('/:id', verify, create_guest_room );
+router.post('/:id', verify, create_guest_room);
 
 router.put('/:id', verify, update_guest_room);
 
