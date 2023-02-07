@@ -4,7 +4,8 @@ import mongoose from "mongoose"
 const HotelSchema = new mongoose.Schema({
     name: {type:String, required: true, min: 3, max: 32, unique: true},
     city: { type: String, required: true},
-    title: {type:String, require:true},
+    title: { type: String, require: true },
+    type: {type:String, require:true},
     address: { type: String, required: true },
     distance:{type:String, required:true},
     image: {type: [String] },
