@@ -65,7 +65,7 @@ http://localhost:2027/api/auth/login
 
 ## Donors (Users) Routes
 
-- Get all Donors Route
+- Get all Hotels Route
 
 ```
 //Endpoint is
