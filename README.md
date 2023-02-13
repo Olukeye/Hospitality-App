@@ -63,7 +63,7 @@ http://localhost:2027/api/auth/login
 }
 ```
 
-## Donors (Users) Routes
+## Hotels Routes
 
 - Get all Hotels Route
 
