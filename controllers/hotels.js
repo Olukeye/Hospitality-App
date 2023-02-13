@@ -1,5 +1,5 @@
 import Hotel  from "../models/hotels.js"
-
+import Guest_room from "../models/guest_rooms.js"
 
 
 const create_hotel = async (req, res) => {
@@ -59,7 +59,7 @@ const hotel_search_by_city = async (req, res, next) => {
         if (req.query.search) {
             query.city = { $regex: req.query.search, $options: 'i'}
         } 
-        const cities = await Hotel.find(query).count()
+        const cities = await Hotel.find(query)
         res.status(200).json(cities)
     } catch (err) {
         res.status(500).json(err)
@@ -101,6 +101,20 @@ const hotel_search_by_type = async (req, res, next) => {
     }
 }
 
+const get_rooms_by_hotelById = async (req, res) => {
+    try {
+        const getHotelRoom = await Hotel.findById(req.params.id)
+        const get_guestroom = await Promise.all(
+            getHotelRoom.rooms.map((guest_rooms) => {
+                return Guest_room.findById(guest_rooms)
+            })
+        )
+        res.status(200).json(get_guestroom)
+    } catch (err) {
+        res.status(500).json(err)
+    }
+}
+
 export {
     create_hotel,
     update_hotel,
@@ -109,5 +123,6 @@ export {
     get_all_hotels,
     hotel_search_by_city,
     hotel_search_by_name,
-    hotel_search_by_type
+    hotel_search_by_type,
+    get_rooms_by_hotelById
 }
