@@ -42,7 +42,7 @@ const delete_guest_room = async (req, res, next) => {
         return res.status(200).json({ message: "Room deleted successfully" });
         
         } catch (err) {
-            next(err)
+            return next(err)
         }
     } 
 
@@ -66,11 +66,20 @@ const get_all_GuestRooms = async (req, res) => {
     }
 }
 
+const update_guest_room_date_available = async (req, res, next) => {
+    try {
+        const availableDate = await Guest_room.findOne({'roomNumber._id': req.params.id}, { $push:{'roomNumber.$.bookedDate' : req.body.dates}})
+        return res.status(200).json({ message: "update successful", data: availableDate});
+    } catch (err) {
+       return next(err)
+    }
+}
 
 export {
     create_guest_room,
     update_guest_room,
     get_single_guest_room,
     get_all_GuestRooms,
-    delete_guest_room
+    delete_guest_room,
+    update_guest_room_date_available
 }
