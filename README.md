@@ -41,8 +41,8 @@ http://localhost:2027/api/auth/login
     "password": "boma"
 }
 
--Response with:
--status code is 201 Created
+- Response with:
+- status code is 201 Created
 
 {
     "_id": "63cfad77d5002406011219b2",
@@ -84,8 +84,8 @@ http://localhost:2027/api/hotels
     "rating":1
 }
 
--Response with:
--status code is 201 Created
+- Response with:
+- status code is 201 Created
 
 {
     "name": "presidential suit",
@@ -120,8 +120,8 @@ http://localhost:2027/api/hotels/hotel id
     "discription":"nice place",
 
 }
--Response with:
--status code is 200 ok
+- Response with:
+- status code is 200 ok
 
 {
     "_id": "63f4b5f9854d5a25082cedc9",
@@ -158,8 +158,8 @@ http://localhost:2027/api/rooms/hotel_id(63e28ec245da69b28d98ae79)
     "maxGuestPerRoom":1
 }
 
--Response with:
--status code is 201 Created
+- Response with:
+- status code is 201 Created
 
 {
     "message": "Room created successfully",
