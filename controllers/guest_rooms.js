@@ -68,8 +68,8 @@ const get_all_GuestRooms = async (req, res) => {
 
 const update_guest_room_date_available = async (req, res, next) => {
     try {
-        const availableDate = await Guest_room.findOne({'roomNumber._id': req.params.id}, { $push:{'roomNumber.$.bookedDate' : req.body.dates}})
-        return res.status(200).json({ message: "update successful", data: availableDate});
+        const availableDate = await Guest_room.updateOne({"roomNumber._id": req.params.id}, { $push:{"roomNumber.$.bookedDate" : req.body.dates}})
+        return res.status(200).json({ message: "Available room date updated successfully"});
     } catch (err) {
        return next(err)
     }
