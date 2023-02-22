@@ -2,7 +2,7 @@ import User  from "../models/users.js"
 import CryptoJS from "crypto-js"
 
 
-const get_single_user = async (req, res,  next) => {
+const get_single_user = async (req, res, next) => {
     try {
         const singleuser = await User.findById(req.params.id)
         res.status(200).json(singleuser)

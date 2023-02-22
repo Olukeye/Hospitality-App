@@ -111,7 +111,7 @@ http://localhost:2027/api/hotels
 ```
 //Endpoint is:
 
-http://localhost:2027/api/hotels/hotel id
+http://localhost:2027/api/hotels/hotel_id
 
 {
     "name":"Chapter's Hotel",
