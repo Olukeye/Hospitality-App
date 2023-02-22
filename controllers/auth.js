@@ -1,4 +1,5 @@
 import User from "../models/users.js"
+import Token from "../models/token.js"
 import CryptoJS from "crypto-js"
 import jwt from "jsonwebtoken"
 import dotenv from "dotenv"
@@ -14,6 +15,7 @@ const sign_up = async (req, res, next) => {
     if (emailExisted) {
         return res.status(401).json({"message":"email alreday exist"})
     }
+
     try {
         const user = new User({
             username: req.body.username,
@@ -21,7 +23,7 @@ const sign_up = async (req, res, next) => {
             password: CryptoJS.AES.encrypt(req.body.password, process.env.SECRET_KEY).toString(),
         });
 
-        const token = createJWT(user.id);
+        const token = createJWT(user);
 
         const new_user = await user.save();
         res.status(201).json({user: new_user, token})
@@ -44,7 +46,7 @@ const login = async (req, res, next) => {
         originalPassword !== req.body.password && res.status(400).json('Wrong email or password!')
 
         // accessToken
-        const token = jwt.sign({id: user.id, isAdmin: user.isAdmin }, process.env.SECRET_KEY, {expiresIn: "7d"} );
+        const token = jwt.sign({id: user.id, isAdmin: user.isAdmin }, process.env.SECRET_KEY, {expiresIn: process.env.JWT_EXPIRES_IN});
         const { password, isAdmin, ...info } = user._doc;  //Hide user password
         
         res.status(200).json({...info, token})
@@ -54,7 +56,39 @@ const login = async (req, res, next) => {
     }
 }
 
+
+const resetPasswordRequest = async (req, res) => {
+
+    try {
+        const user = await User.findOne(email)
+
+        if (!user) {
+            return res.status(401).json({"message":"User email does not exist"})
+        }
+    
+        const token = await Token.findOne({ user_id: user._id })
+        
+        if (token) {
+            await token.deleteOne()
+        }
+
+        const resetToken = CryptoJS.AES.decrypt((process.env.SECRET_KEY).toString());
+        const hash = await bytes.toString(resetToken, CryptoJS.enc.Utf8);
+
+        await new Token({
+            userId: user._id,
+            token: hash,
+            createdAt: Date.now(),
+        }).save()
+
+    } catch (err) {
+        next(err)
+    }
+}
+
+
 export {
     sign_up,
-    login
+    login,
+    resetPasswordRequest
 }
