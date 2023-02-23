@@ -3,6 +3,7 @@ import Token from "../models/token.js"
 import CryptoJS from "crypto-js"
 import jwt from "jsonwebtoken"
 import dotenv from "dotenv"
+import { sendEmail } from "../utils/email_handler/sendEmail.js"
 import { createJWT } from "../utils/jwt.js"
 dotenv.config();
 
@@ -57,29 +58,51 @@ const login = async (req, res, next) => {
 }
 
 
-const resetPasswordRequest = async (req, res) => {
+const resetPasswordRequest = async (req, res, next) => {
 
     try {
-        const user = await User.findOne(email)
+        const user = await User.findOne({email: req.body.email})
 
         if (!user) {
             return res.status(401).json({"message":"User email does not exist"})
         }
     
-        const token = await Token.findOne({ user_id: user._id })
+        const token = await Token.findOne({ userId: user._id })
         
         if (token) {
             await token.deleteOne()
         }
 
-        const resetToken = CryptoJS.AES.decrypt((process.env.SECRET_KEY).toString());
-        const hash = await bytes.toString(resetToken, CryptoJS.enc.Utf8);
+        const resetToken = CryptoJS.AES.decrypt(user.password, process.env.SECRET_KEY).toString();
+        const originalText = resetToken.toString(CryptoJS.enc.Utf8);
 
         await new Token({
             userId: user._id,
-            token: hash,
+            token: originalText,
             createdAt: Date.now(),
         }).save()
+
+        // const link = `${process.env.BASE_URL}/password-reset/${user._id}/${token.token}`;
+        // await sendEmail(
+        //     user.email,
+        //     "Password reset",
+        //     link
+        // );
+
+
+        
+        // const link = `${process.env.CLIENT_URL}/resetPassword?token=${resetToken}&userId=${user._id}`;
+        const link = `${process.env.CLIENT_URL}/resetPassword/${user._id}/${resetToken}`;
+        sendEmail(
+            user.email,
+            "Password Reset",
+            {
+                name: user.name, link: link,
+            },
+            "./template/requestResetPassword.handlebars"
+        );
+
+        return link;
 
     } catch (err) {
         next(err)
