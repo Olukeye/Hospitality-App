@@ -97,7 +97,8 @@ const resetPasswordRequest = async (req, res, next) => {
             user.email,
             "Password Reset",
             {
-                name: user.name, link: link,
+                name: user.name,
+                link: link,
             },
             "./template/requestResetPassword.handlebars"
         );
