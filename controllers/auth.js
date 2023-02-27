@@ -5,6 +5,8 @@ import jwt from "jsonwebtoken"
 import dotenv from "dotenv"
 import { sendEmail } from "../utils/email_handler/sendEmail.js"
 import { createJWT } from "../utils/jwt.js"
+var hash = CryptoJS.SHA256("Message")
+
 dotenv.config();
 
 
@@ -73,37 +75,19 @@ const resetPasswordRequest = async (req, res, next) => {
             await token.deleteOne()
         }
 
-        const resetToken = CryptoJS.AES.decrypt(user.password, process.env.SECRET_KEY).toString();
-        const originalText = resetToken.toString(CryptoJS.enc.Utf8);
+        const resetToken = hash.toString(CryptoJS.enc.Hex)
+        const plainText = resetToken.toString(CryptoJS.enc.Utf8);
+   
 
         await new Token({
             userId: user._id,
-            token: originalText,
+            token: plainText,
             createdAt: Date.now(),
         }).save()
 
-        // const link = `${process.env.BASE_URL}/password-reset/${user._id}/${token.token}`;
-        // await sendEmail(
-        //     user.email,
-        //     "Password reset",
-        //     link
-        // );
-
-
-        
-        // const link = `${process.env.CLIENT_URL}/resetPassword?token=${resetToken}&userId=${user._id}`;
-        const link = `${process.env.CLIENT_URL}/resetPassword/${user._id}/${resetToken}`;
-        sendEmail(
-            user.email,
-            "Password Reset",
-            {
-                name: user.name,
-                link: link,
-            },
-            "./template/requestResetPassword.handlebars"
-        );
-
-        return link;
+        const link = `${process.env.CLIENT_URL}/resetPassword/userId=${user._id}?token=${resetToken}`;
+        await sendEmail(user.email,"Password Reset",{  name: user.username, link: link,},"./template/requestResetPassword.handlebars");
+        res.status(200).json(link);
 
     } catch (err) {
         next(err)
@@ -111,8 +95,18 @@ const resetPasswordRequest = async (req, res, next) => {
 }
 
 
+const resetPassword = async (userId, token, password, req, res) => {
+    const resetPassword = await Token.findOne({ userId, token})
+    
+    if (!resetPassword) {
+        return res.status(400).json("This password token is invalid or expired")
+    }
+}
+
+
 export {
     sign_up,
     login,
-    resetPasswordRequest
+    resetPasswordRequest,
+    resetPassword
 }
