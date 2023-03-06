@@ -1,6 +1,7 @@
 import User from "../models/users.js"
 import Token from "../models/token.js"
 import CryptoJS from "crypto-js"
+import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken"
 import dotenv from "dotenv"
 import { sendEmail } from "../utils/email_handler/sendEmail.js"
@@ -75,13 +76,11 @@ const resetPasswordRequest = async (req, res, next) => {
             await token.deleteOne()
         }
 
-        const resetToken = hash.toString(CryptoJS.enc.Hex)
-        const plainText = resetToken.toString(CryptoJS.enc.Utf8);
-   
+        const resetToken = CryptoJS.lib.WordArray.random(32);
 
         await new Token({
             userId: user._id,
-            token: plainText,
+            token: resetToken,
             createdAt: Date.now(),
         }).save()
 
@@ -95,12 +94,44 @@ const resetPasswordRequest = async (req, res, next) => {
 }
 
 
-const resetPassword = async (userId, token, password, req, res) => {
-    const resetPassword = await Token.findOne({ userId, token})
-    
-    if (!resetPassword) {
-        return res.status(400).json("This password token is invalid or expired")
+const newPassword = async (req, res, userId, token, password, next ) => {
+
+    try {
+        const user = await User.findOne(req.params.userId)
+        if (!user) {
+            return res.status(400).json("invalid link or expired")
+        };
+
+        const resetPassword = await Token.findOne({ iserId: user._id, token: req.params.token })
+        if (!resetPassword) {
+            return res.status(400).json("This password token is invalid or expired")
+        }
+
+        console.log(resetPassword.token, token);
+
+        const isValid = await bcrypt.compare(token, resetPassword.token);
+      
+        if (!isValid) {
+          throw new Error("Invalid or expired password reset token");
+        }
+      
+        const hash = await bcrypt.hash(password, Number(bcryptSalt));
+      
+        await User.updateOne(
+          { _id: userId },
+          { $set: { password: hash } },
+          { new: true }
+        );
+        await resetPassword.delete();
+
+        sendEmail(user.email, "Password Reset Successfully",{ name: user.name },"./template/resetPassword.handlebars");
+            
+        return { message: "Password reset was successful" };
+            
+    } catch (error) {
+        return next(error)
     }
+
 }
 
 
@@ -108,5 +139,5 @@ export {
     sign_up,
     login,
     resetPasswordRequest,
-    resetPassword
+    newPassword
 }
