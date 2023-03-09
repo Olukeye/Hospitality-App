@@ -2,13 +2,15 @@ import User from "../models/users.js"
 import Token from "../models/token.js"
 import CryptoJS from "crypto-js"
 import bcrypt from "bcrypt"
+import crypto from "crypto"
 import jwt from "jsonwebtoken"
 import dotenv from "dotenv"
 import { sendEmail } from "../utils/email_handler/sendEmail.js"
 import { createJWT } from "../utils/jwt.js"
-var hash = CryptoJS.SHA256("Message")
+// const bcryptSalt = process.env.BCRYPT_SALT;
 
 dotenv.config();
+const bcryptSalt = process.env.BCRYPT_SALT;
 
 
 
@@ -76,11 +78,12 @@ const resetPasswordRequest = async (req, res, next) => {
             await token.deleteOne()
         }
 
-        const resetToken = CryptoJS.lib.WordArray.random(32);
+        let resetToken = crypto.randomBytes(32).toString("hex");
+        const hash = await bcrypt.hash(resetToken, Number(bcryptSalt));
 
         await new Token({
             userId: user._id,
-            token: resetToken,
+            token: hash,
             createdAt: Date.now(),
         }).save()
 
@@ -94,31 +97,33 @@ const resetPasswordRequest = async (req, res, next) => {
 }
 
 
-const newPassword = async (req, res, userId, token, password, next ) => {
-
+const newPassword = async (req, res) => {
     try {
-        const user = await User.findOne(req.params.userId)
+        const user = await User.findById(req.params.user)
         if (!user) {
             return res.status(400).json("invalid link or expired")
         };
+        console.log(user)
 
-        const resetPassword = await Token.findOne({ iserId: user._id, token: req.params.token })
+        const resetPassword = await Token.findOne({_id, token} )
         if (!resetPassword) {
             return res.status(400).json("This password token is invalid or expired")
         }
 
-        console.log(resetPassword.token, token);
+        console.log(resetPassword);
 
-        const isValid = await bcrypt.compare(token, resetPassword.token);
+        const isValid = await bcrypt.compare(resetPassword.token);
       
         if (!isValid) {
           throw new Error("Invalid or expired password reset token");
         }
-      
+            
         const hash = await bcrypt.hash(password, Number(bcryptSalt));
-      
+        // Store hash in your password DB.
+        
+        
         await User.updateOne(
-          { _id: userId },
+          { id: userId},
           { $set: { password: hash } },
           { new: true }
         );
@@ -129,7 +134,8 @@ const newPassword = async (req, res, userId, token, password, next ) => {
         return { message: "Password reset was successful" };
             
     } catch (error) {
-        return next(error)
+        res.send(error);
+        console.log(error)
     }
 
 }
