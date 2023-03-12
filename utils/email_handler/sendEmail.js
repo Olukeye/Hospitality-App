@@ -50,7 +50,7 @@ const sendEmail = async (email, subject, payload, template) => {
             if(error) {
                 console.log(error, "email not sent");
             } else {
-                console.log("email link has been sent to your email for password reset "  + info.response);
+                console.log("email link has been sent to your email for password reset "  + info);
             }
         });
     } catch (error) {

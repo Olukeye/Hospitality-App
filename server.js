@@ -20,6 +20,7 @@ dotenv.config();
    
 // body parser
 app.use(express.json());
+app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json())
 app.use(cookieParser())
 

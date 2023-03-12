@@ -7,12 +7,10 @@ import jwt from "jsonwebtoken"
 import dotenv from "dotenv"
 import { sendEmail } from "../utils/email_handler/sendEmail.js"
 import { createJWT } from "../utils/jwt.js"
-// const bcryptSalt = process.env.BCRYPT_SALT;
 
 dotenv.config();
-const bcryptSalt = process.env.BCRYPT_SALT;
 
-
+const bcryptSalt = "12";
 
 const sign_up = async (req, res, next) => {
     const { email } = req.body;
@@ -32,6 +30,9 @@ const sign_up = async (req, res, next) => {
         const token = createJWT(user);
 
         const new_user = await user.save();
+
+        console.log(new_user)
+
         res.status(201).json({user: new_user, token})
     } catch (err) {
         next(err)
@@ -79,7 +80,7 @@ const resetPasswordRequest = async (req, res, next) => {
         }
 
         let resetToken = crypto.randomBytes(32).toString("hex");
-        const hash = await bcrypt.hash(resetToken, Number(bcryptSalt));
+        const hash = await bcrypt.hash(resetToken,  Number(bcryptSalt));
 
         await new Token({
             userId: user._id,
@@ -97,44 +98,45 @@ const resetPasswordRequest = async (req, res, next) => {
 }
 
 
-const newPassword = async (req, res) => {
+const newPassword = async (req, res, next) => {
     try {
-        const user = await User.findById(req.params.user)
-        if (!user) {
-            return res.status(400).json("invalid link or expired")
-        };
-        console.log(user)
+        const {password, token, userId} = req.body;
+        
+        const passwordResetToken  = await Token.findOne({
+            userId
+        });
 
-        const resetPassword = await Token.findOne({_id, token} )
-        if (!resetPassword) {
-            return res.status(400).json("This password token is invalid or expired")
-        }
+        if (!passwordResetToken) return res.status(400).send("Invalid link or expired");
 
-        console.log(resetPassword);
+        const isValid = bcrypt.compare(token, passwordResetToken.token);
 
-        const isValid = await bcrypt.compare(resetPassword.token);
-      
         if (!isValid) {
           throw new Error("Invalid or expired password reset token");
         }
-            
-        const hash = await bcrypt.hash(password, Number(bcryptSalt));
-        // Store hash in your password DB.
-        
-        
-        await User.updateOne(
-          { id: userId},
-          { $set: { password: hash } },
+      
+        const hash = await bcrypt.hash(password,  Number(bcryptSalt));
+      
+        await User.findByIdAndUpdate(
+            req.params.id,
+          { $set: { password: hash }},
           { new: true }
         );
-        await resetPassword.delete();
+
+        const user = await User.findById({_id: userId})
+        if (!user) {
+            return res.status(400).json("invalid link or expired")
+        };
+
+        console.log(user)
 
         sendEmail(user.email, "Password Reset Successfully",{ name: user.name },"./template/resetPassword.handlebars");
+
+        await passwordResetToken.delete();
             
-        return { message: "Password reset was successful" };
+        return res.status(200).json({ message: "Password reset was successful" });
             
     } catch (error) {
-        res.send(error);
+        next(error);
         console.log(error)
     }
 

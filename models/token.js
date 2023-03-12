@@ -1,9 +1,9 @@
 import * as mongoose from 'mongoose';
-const  { ObjectId } = mongoose.Schema;
+const  Schema = mongoose.Schema;
 
 
 const tokenSchema = new mongoose.Schema({
-    userId: { type: ObjectId, ref: 'User', required: true },
+    userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     token: { type: String, required: true },
     createdAt: { type: Date, default: Date.now, expires: 3600, }
 });
