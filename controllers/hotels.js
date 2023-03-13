@@ -115,6 +115,8 @@ const get_rooms_by_hotelById = async (req, res) => {
     }
 }
 
+
+
 export {
     create_hotel,
     update_hotel,

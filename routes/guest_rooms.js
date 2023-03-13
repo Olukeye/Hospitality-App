@@ -6,7 +6,8 @@ import {
     get_single_guest_room,
     get_all_GuestRooms,
     delete_guest_room,
-    update_guest_room_date_available
+    update_guest_room_date_available,
+    billPayment
 } from "../controllers/guest_rooms.js";
 
 
@@ -24,5 +25,6 @@ router.get('/:id', verify, get_single_guest_room);
 
 router.get('/',  get_all_GuestRooms)
 
+router.put('/payment',  billPayment);
 
 export default router;

@@ -24,6 +24,17 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json())
 app.use(cookieParser())
 
+// This will set express to open and render our views folder, then to render the files as normal html
+app.set('view engin', 'ejs')
+// app.engine('html', require('ejs').renderFile)
+
+// app.use(express.static(path.join(__dirname, './views')))
+
+app.get('/', (req, res) => {
+    res.render('index', {
+        key:process.env.SECRET_KEY
+    })
+})
 // routes middleware
 app.use('/api/auth', authRouter);
 app.use('/api/rooms', guest_roomRouter);

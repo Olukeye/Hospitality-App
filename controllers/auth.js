@@ -24,7 +24,7 @@ const sign_up = async (req, res, next) => {
         const user = new User({
             username: req.body.username,
             email: req.body.email,
-            password: CryptoJS.AES.encrypt(req.body.password, process.env.SECRET_KEY).toString(),
+            password: CryptoJS.AES.encrypt(req.body.password, process.env.JWT_SECRET).toString(),
         });
 
         const token = createJWT(user);
@@ -46,14 +46,14 @@ const login = async (req, res, next) => {
 
         !user && res.status(400).json("Wrong email or password!");
 
-        const bytes = CryptoJS.AES.decrypt(user.password, process.env.SECRET_KEY);
+        const bytes = CryptoJS.AES.decrypt(user.password, process.env.JWT_SECRET);
         const originalPassword = bytes.toString(CryptoJS.enc.Utf8);
 
         // if login password doesn't match the original password .....
         originalPassword !== req.body.password && res.status(400).json('Wrong email or password!')
 
         // accessToken
-        const token = jwt.sign({id: user.id, isAdmin: user.isAdmin }, process.env.SECRET_KEY, {expiresIn: process.env.JWT_EXPIRES_IN});
+        const token = jwt.sign({id: user.id, isAdmin: user.isAdmin }, process.env.JWT_SECRET, {expiresIn: process.env.JWT_EXPIRES_IN});
         const { password, isAdmin, ...info } = user._doc;  //Hide user password
         
         res.status(200).json({...info, token})

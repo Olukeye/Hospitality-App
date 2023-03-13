@@ -14,5 +14,4 @@ router.post('/resetPassword', resetPasswordRequest);
 router.post('/resetPass', newPassword);
 
 
-
 export default router;

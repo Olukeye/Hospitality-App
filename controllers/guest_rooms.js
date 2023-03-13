@@ -1,6 +1,13 @@
 import Guest_room from "../models/guest_rooms.js"
 import Hotel from "../models/hotels.js"
+import dotenv from "dotenv"
+import Stripe from 'stripe';
 
+
+dotenv.config();
+
+
+const stripe = new Stripe(process.env.SECRET_KEY);
 
 
 const create_guest_room = async (req, res, next) => {
@@ -75,11 +82,38 @@ const update_guest_room_date_available = async (req, res, next) => {
     }
 }
 
+const billPayment = async (req, res) => {
+    try {
+        stripe.customers
+          .create({
+            name: req.body.name,
+            email: req.body.email,
+            source: req.body.stripeToken,
+            
+          })
+          .then(customer =>
+            stripe.charges.create({
+              amount: req.body.price * 100,
+              currency: "usd",
+                customer: customer.id,
+                description: 'The coolest rooms'
+            })
+          )
+          .then(() => res.render("completed.html"))
+          .catch(err => console.log(err));
+    } catch (err) {
+        res.send(err);
+    }
+}
+
+
 export {
     create_guest_room,
     update_guest_room,
     get_single_guest_room,
     get_all_GuestRooms,
     delete_guest_room,
-    update_guest_room_date_available
+    update_guest_room_date_available,
+    billPayment
+
 }
